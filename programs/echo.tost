@@ -1,0 +1,21 @@
+extern toaster printd(x: i64);
+extern toaster printc(x: i8);
+extern toaster char_eq(x: i8, y: i8): bool;
+extern toaster char_neq(x: i8, y: i8): bool;
+
+fun main(argc: i64, argv: [[i8]]): i64 {
+    let i = 1;
+    loop {
+        if i >= argc {
+            break;
+        }
+
+        let x = [1, 2, 3, x + 1];
+
+        prints(argv[i]);
+        printc(' ');
+        i = i + 1;
+    }
+    printc('\n');
+    return 0;
+}

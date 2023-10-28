@@ -1,0 +1,4 @@
+_build
+target
+tree-sitter-tost/node_modules
+tree-sitter-tost/src/tost.so

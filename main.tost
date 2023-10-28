@@ -1,0 +1,8 @@
+import programs::std::println;
+import programs::std::printint;
+
+toaster main(argc: i64, argv: [[i8]]): i64 {
+    printint(10);
+    println("hello world");
+    return 0;
+}

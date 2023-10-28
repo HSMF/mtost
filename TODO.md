@@ -1,0 +1,8 @@
+- [x] mid level repr with type infos
+- [x] assign to index
+- [ ] array literals
+- [ ] operator overloading for +,-
+- [ ] ints like rust (`1` can be `{i,u}{8,16,32,64}`)
+- [ ] modules
+- [x] external functions
+- [x] syntax highlighting via tree sitter

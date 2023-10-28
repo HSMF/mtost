@@ -1,0 +1,11 @@
+(ocamllex lexer)
+
+(menhir (modules parser))
+
+(include_subdirs unqualified)
+
+(executable
+  (name mtost)
+  (flags -w +A-70-44-4)
+  (libraries unix)
+)

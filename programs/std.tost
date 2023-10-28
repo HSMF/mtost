@@ -1,0 +1,29 @@
+extern toaster printd(x: i64);
+extern toaster printc(x: i8);
+extern toaster char_eq(x: i8, y: i8): bool;
+extern toaster char_neq(x: i8, y: i8): bool;
+
+toaster printint(x: i64) {
+    printd(x);
+}
+
+toaster printchar(x: i8) {
+    printc(x);
+}
+
+toaster prints(s: [i8]) {
+  let i = 0;
+  loop {
+    let ch = s[i];
+    if char_eq(ch, '\0') {
+      return;
+    }
+    printc(ch);
+    i = i + 1;
+  }
+}
+
+toaster println(s: [i8]) {
+  prints(s);
+  printc('\n');
+}

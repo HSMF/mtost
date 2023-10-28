@@ -1,0 +1,54 @@
+<toplevel> := <item>1 ... <item>n
+<item>      :=
+  | <func>
+  | <extern-decl>
+  | <import>
+<extern-decl> :=
+  | extern fun <ident>(<args>): <ty>;
+  | extern fun <ident>(<args>);
+<func>  :=
+    | fun <ident>(<args>): <ty> <block>
+    | fun <ident>(<args>) <block>
+<import> :=
+    | import <path>;
+<path> :=
+    | <ident>0 :: ... :: <ident>n
+
+<args>      := <arg>,...,<arg>
+<arg>       := <ident>: <ty>
+<block>     := {<statement>_1 ..  <statement>_n}
+<statement> :=
+    | let <ident> = <expr>;
+    | <rhs> = <expr>;
+    | <funccall>;
+    | return <expr>;
+    | if <expr> <block>
+    | if <expr> <block> else <block>
+    | loop <block>
+    | break;
+    | return;
+<rhs>       :=
+    | <ident>
+    | <ident> [ <expr> ]
+<expr>      :=
+    | <ident>
+    | <literal>
+    | <expr> <bop> <expr>
+    | <uop> <expr>
+    | (<expr>)
+    | <funccall>
+    | ( )
+    | [ <expr>1, ..., <expr>n ]
+    | [ <expr>1 ; <integer> ]
+<literal>   :=
+    | <int>
+    | true
+    | false
+    | <string>
+    | <char>
+funccall    :=
+    | <ident>(<expr>1, ..., <expr>n)
+
+<ident> := /[a-zA-Z_][a-zA-Z_0-9]*/
+<ty>    := i64 | bool | str | *<ty> | [<ty>] | unit
+
