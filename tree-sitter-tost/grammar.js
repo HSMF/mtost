@@ -3,7 +3,9 @@ module.exports = grammar({
   extras: ($) => [$.comment, /\s/],
   rules: {
     prog: ($) => repeat($.item),
-    item: ($) => choice($.func, $.externdecl),
+    item: ($) => choice($.func, $.externdecl, $.import),
+    import: ($) => seq("import", $.path, ";"),
+    path: ($) => sep1($.id, "::"),
     id: (_) => /[a-zA-Z_]\w*/,
     // comment: (_) => seq("//", /[^\n]*/),
     comment: (_) =>
@@ -70,16 +72,16 @@ module.exports = grammar({
         prec.left(20, "|")
       ),
     unescaped: (_) => token.immediate(prec(1, /[^"\\]+/)),
-    escape_seq: (_) => token.immediate(
-      prec(1, seq('\\',
-        choice(/x[a-fA-F0-9]{2}/, /[nr"'\\]/)
-      ))
-    ),
-      // token.immediate(
-      //   seq("\\", "'", choice(/x[a-fA-F0-9]{2}/, /[0-7]{1,3}/, /[nr"\\]/))
-      // ),
+    escape_seq: (_) =>
+      token.immediate(
+        prec(1, seq("\\", choice(/x[a-fA-F0-9]{2}/, /[nr"'\\]/)))
+      ),
+    // token.immediate(
+    //   seq("\\", "'", choice(/x[a-fA-F0-9]{2}/, /[0-7]{1,3}/, /[nr"\\]/))
+    // ),
     string: ($) => seq('"', repeat(choice($.unescaped, $.escape_seq)), '"'),
-    char: ($) => seq("'", choice(token.immediate(prec(1, /[^'\\]/)), $.escape_seq), "'"),
+    char: ($) =>
+      seq("'", choice(token.immediate(prec(1, /[^'\\]/)), $.escape_seq), "'"),
     integer: (_) => /\d+/,
     _literal: ($) => choice($.integer, $.string, $.char, "true", "false"),
 

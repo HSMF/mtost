@@ -178,7 +178,6 @@ let assert_ty_all_eq (ts : Ty.t list) =
 let sigof (fts : tmap list) (name : uid) : Ty.t =
   try List.assoc name fts with
   | x ->
-
     error @@ Util.slc (fun (name, ty) -> sp "%s: %s" name (Ty.to_string ty)) fts;
     error (sp "didnt find symbol: %s\n" name);
     flush stderr;
@@ -239,7 +238,6 @@ let declared_types (ast : Ast.ast) =
     | Ast.Import _ :: xs -> mapitem (with_body, without) xs
   in
   mapitem ([], []) ast
-
 ;;
 
 let rec from_ast fts (ast : Ast.ast) =
@@ -312,3 +310,5 @@ and mapexpr (fts : tmap list) (e : Ast.expr) : expr =
   let _ = typeof_expr fts e in
   e
 ;;
+
+let ( @@@ ) (a : t) (b : t) : t = { items = a.items @ b.items }

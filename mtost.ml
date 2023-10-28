@@ -44,6 +44,8 @@ let compile_clang ~opt_level file output =
   Util.exec "clang" (!flags @ [ "-o"; output; "std.o"; file ]) Util.raise_error
 ;;
 
+let last = List.rev >> List.hd
+
 (* this sucks and needs to be fixed *)
 let rec load_file
   (basepath : Path.t)
@@ -53,7 +55,7 @@ let rec load_file
   : Mid1.t list * (Path.t * Mid1.Ty.t) list
   =
   info (sp "compiling %s" filename);
-  let concat_dir path = string_list "/" Fun.id path ^ ".tost" in
+  let concat_dir path = dirname ^ "/" ^ string_list "/" Fun.id path ^ ".tost" in
   let input = filename |> read_file in
   (* parse the file*)
   let buf = Lexing.from_string input in
@@ -105,7 +107,6 @@ let rec load_file
   let midlevels, symbol_map = List.(concat midlevels, concat symbol_map) in
   let exported_symbols, externs = Mid1.declared_types ast in
   (* wtf, right? *)
-  let last = List.rev >> List.hd in
   let imported_symbols =
     List.filter
       (fun (x, _) -> List.find_opt (fun y -> x = y) imports |> Option.is_some)
@@ -113,7 +114,10 @@ let rec load_file
     |> List.map (fun (a, b) -> last a, b)
   in
   let print_typemap name tm =
-    info @@ name ^ ": "^ slc (fun (name, ty) -> sp "%s: %s" name (Mid1.Ty.to_string ty)) tm
+    info
+    @@ name
+    ^ ": "
+    ^ slc (fun (name, ty) -> sp "%s: %s" name (Mid1.Ty.to_string ty)) tm
   in
   let cmp (a, _) (b, _) = String.compare a b in
   externals := List.merge cmp (List.sort cmp externs) !externals;
@@ -121,7 +125,6 @@ let rec load_file
   print_typemap "exported_symbols" exported_symbols;
   print_typemap "externals       " !externals;
   print_typemap "imported symbols" imported_symbols;
-  print_typemap "all             " (exported_symbols @ !externals @ imported_symbols @ Mid1.operand_func_types);
   let midlevel =
     Mid1.from_ast
       (exported_symbols @ !externals @ imported_symbols @ Mid1.operand_func_types)
@@ -131,16 +134,6 @@ let rec load_file
   , symbol_map
     @ List.map (fun (x, ty) -> Path.prepend_path basepath [ x ], ty) exported_symbols )
 ;;
-
-(*
-   1. load entry file
-2. get imports of entry file
-
-
-3. load imported file
-5. get imports
-4. get exported names -> basepath @ [filename, item_name]
-*)
 
 let () =
   let set_if_none place error_msg what =
@@ -193,6 +186,15 @@ let () =
     |> List.hd
     |> Filename.remove_extension
   in
+  let input_dir =
+    input_file
+    |> String.split_on_char '/'
+    |> List.rev
+    |> skip 1
+    |> List.rev
+    |> String.concat "/"
+  in
+  let input_dir = if input_dir = "" then "." else input_dir in
   let in_target f = target ^ "/" ^ f in
   let llvm_ir_file = in_target (basename ^ ".ll") in
   let output = Option.fold ~none:(in_target basename) ~some:Fun.id output_file_name in
@@ -203,20 +205,20 @@ let () =
   let buf = Lexing.from_string input in
   try
     (* parse file *)
-    let ast = parse input_file buf in
-    let ast = Transform.no_implicit_return ast in
-    info (Ast.items_to_string ast);
+    (* let ast = parse input_file buf in *)
+    (* let ast = Transform.no_implicit_return ast in *)
+    (* info (Ast.items_to_string ast); *)
     let externals = ref [] in
-    let _ = load_file [] input_file "." externals in
-    (* convert to level 1 representation *)
-    let funcs, externals = Mid1.declared_types ast in
-    (* info *)
-    (*   (string_list ",\n" (fun (n, t) -> sp "%s: %s" n (Mid1.Ty.to_string t)) funcs *)
-    (*    @ externals); *)
-    let step1 = Mid1.from_ast (funcs @ externals @ Mid1.operand_func_types) ast in
+    let step1, tmaps = load_file [] input_file input_dir externals in
+    (* todo: fix *)
+    let funcs = List.map (fun (a, b) -> last a, b) tmaps in
+    let step1 =
+      let open Mid1 in
+      List.fold_left (fun a b -> a @@@ b) { items = [] } step1
+    in
     (* convert to llvm ir *)
     let llvm =
-      try Compilem1.compile externals funcs step1 with
+      try Compilem1.compile !externals funcs step1 with
       | e ->
         Printf.eprintf "bt: %s\n" Printexc.(get_callstack 10 |> raw_backtrace_to_string);
         flush stderr;
