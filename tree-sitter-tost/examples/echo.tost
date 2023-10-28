@@ -1,0 +1,12 @@
+toaster prints(s: [i8]) {
+  let i = 0;
+  loop {
+    let ch = s[i];
+    if char_eq(ch, '\0') {
+      return;
+    }
+    printc(ch);
+    i = i + 1;
+  }
+}
+

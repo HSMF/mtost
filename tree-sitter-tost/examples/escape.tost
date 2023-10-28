@@ -1,0 +1,4 @@
+fun main() {
+    let x = "hello world\\ \n";
+    let x = '\0';
+}
