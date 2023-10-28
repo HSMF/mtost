@@ -4,5 +4,6 @@
 - [ ] operator overloading for +,-
 - [ ] ints like rust (`1` can be `{i,u}{8,16,32,64}`)
 - [ ] modules
+- [ ] make importing have better code and not be so hacky
 - [x] external functions
 - [x] syntax highlighting via tree sitter
