@@ -4,6 +4,7 @@ set -e
 
 base="$(pwd)"
 neovim_config_dir="$XDG_CONFIG_HOME/nvim"
+tree-sitter generate
 cd src
 gcc -o tost.so -shared parser.c -Os -fPIC
 cd "$base"

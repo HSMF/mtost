@@ -3,6 +3,7 @@
 ## Try it out
 
 1. Get Ocaml, dune, menhir, ocamllex
+  (For syntax highlighting you will also need tree-sitter, see [tree-sitter-tost](./tree-sitter-tost/README.md))
 
 1. there is no real standard library yet, so to write actual programs, `std.c` exists. You need to
    build that first:
